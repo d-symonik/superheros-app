@@ -9,26 +9,52 @@ const Superhero = sequelize.define('superhero', {
     },
     nickname: {
         type: DataTypes.STRING,
-        allowNull:false
+        allowNull: false
     },
     real_name: {
         type: DataTypes.STRING,
-        allowNull:false
+        allowNull: false
     },
     origin_description: {
         type: DataTypes.STRING,
         unique: true,
-        allowNull:false
-    },
-    superpowers: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull:false
+        allowNull: false
     },
     catch_phrase: {
         type: DataTypes.STRING
-    },
-    images:{
-        type:DataTypes.ARRAY(DataTypes.STRING)
     }
 });
-module.exports = {Superhero};
+
+const Superpower = sequelize.define('superpower', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+
+});
+const SuperheroImage = sequelize.define('superhero_image', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    image: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+
+});
+
+Superhero.hasMany(Superpower, {as: 'skills'});
+Superpower.belongsTo(Superhero);
+
+Superhero.hasMany(SuperheroImage, {as: 'images'});
+SuperheroImage.belongsTo(Superhero);
+
+
+module.exports = {Superhero, SuperheroImage, Superpower};
