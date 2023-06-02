@@ -25,10 +25,10 @@ module.exports = {
                 return next(ApiError.badRequestError("Not found with this id"));
             }
             await Superpower.destroy({where:{id}});
-            return res.json('Superpower successfully deleted');
+            return res.json({message:'Superpower successfully deleted'});
 
         } catch (e) {
-            return next(ApiError.badRequestError(e.message));
+            return next(ApiError.badRequestError(e));
         }
     },
     update: async (req, res, next) => {

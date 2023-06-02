@@ -53,7 +53,7 @@ const SuperheroImage = sequelize.define('superhero_image', {
 Superhero.hasMany(Superpower, {as: 'skills'});
 Superpower.belongsTo(Superhero);
 
-Superhero.hasMany(SuperheroImage, {as: 'images'});
+Superhero.hasMany(SuperheroImage,{as: 'images'});
 SuperheroImage.belongsTo(Superhero);
 
 

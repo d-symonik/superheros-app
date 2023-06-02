@@ -115,7 +115,10 @@ module.exports = {
     remove: async (req, res, next) => {
         try {
             const {id} = req.params;
-
+            const candidate = await Superhero.findByPk(id);
+            if (!candidate) {
+                return next(ApiError.badRequestError('Not found with this id'));
+            }
             await Superhero.destroy({
                 where: {id}
             });
@@ -128,11 +131,7 @@ module.exports = {
         try {
             const {id} = req.params;
 
-            const hero = await Superhero.findByPk(id);
-
-            const updatedHeroInfo = await hero.update({
-                ...req.body,
-            }, {where: {id}});
+            const updatedHeroInfo = await Superhero.update({...req.body}, {where: {id}});
             return res.json(updatedHeroInfo);
         } catch (e) {
             return next(ApiError.badRequestError(e.message))
