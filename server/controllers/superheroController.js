@@ -1,5 +1,5 @@
 const ApiError = require("../error/ApiError");
-const {Superhero} = require("../models/Superhero");
+const {Superhero, Superpower, SuperheroImage} = require("../models/Superhero");
 const uuid = require('uuid');
 const path = require('path');
 const {object, string, array} = require('yup');
@@ -14,7 +14,14 @@ module.exports = {
                 superpowers,
                 catch_phrase
             } = req.body;
-            const {images} = req.files;
+
+            if (!req.files) {
+                return next(ApiError.badRequestError('Add an image'));
+            }
+            if (!superpowers) {
+                return next(ApiError.badRequestError('Add an superpower'));
+            }
+            let {images} = req.files;
             const heroSchema = object({
                 nickname: string().min(2).max(50).required(),
                 real_name: string().min(2).max(50).required(),
@@ -23,23 +30,37 @@ module.exports = {
             });
             superpowers = JSON.parse(superpowers);
             await heroSchema.validate({nickname, real_name, origin_description, superpowers});
-            let fileNames = [];
-            for (const image of images) {
 
-                let fileName = uuid.v4() + '.jpg';
-                await image.mv(path.resolve(__dirname, '..', 'static', fileName));
-
-                fileNames.push(fileName);
-            }
 
             const superhero = await Superhero.create({
                 nickname,
                 real_name,
                 origin_description,
-                superpowers,
                 catch_phrase,
-                images: fileNames
             });
+            superpowers.forEach(superpower => {
+                Superpower.create({
+                    name: superpower,
+                    superheroId: superhero.id
+                })
+            })
+            if (!Array.isArray(images)) {
+                let fileName = uuid.v4() + '.jpg';
+                await images.mv(path.resolve(__dirname, '..', 'static', fileName));
+                await SuperheroImage.create({
+                    image: fileName,
+                    superheroId: superhero.id
+                })
+            } else {
+                for (const image of images) {
+                    let fileName = uuid.v4() + '.jpg';
+                    await image.mv(path.resolve(__dirname, '..', 'static', fileName));
+                    await SuperheroImage.create({
+                        image: fileName,
+                        superheroId: superhero.id
+                    })
+                }
+            }
             return res.json(superhero)
         } catch (e) {
             return next(ApiError.badRequestError(e.message))
@@ -54,7 +75,11 @@ module.exports = {
 
             let offset = page * limit - limit;
 
-            let heroes = await Superhero.findAndCountAll({limit, offset});
+            let heroes = await Superhero.findAndCountAll({
+                limit,
+                offset,
+                include: [{model: Superpower, as: 'skills'}, {model: SuperheroImage, as: 'images'}]
+            });
             return res.json(heroes);
 
         } catch (e) {
@@ -66,7 +91,17 @@ module.exports = {
             const {id} = req.params;
 
             const hero = await Superhero.findOne({
-                where: {id}
+                where: {id},
+                include: [
+                    {
+                        model: Superpower,
+                        as: 'skills'
+                    },
+                    {
+                        model: SuperheroImage,
+                        as: 'images'
+                    }],
+
             });
 
             if (!hero) {
@@ -89,39 +124,19 @@ module.exports = {
             return next(ApiError.badRequestError(e.message))
         }
     },
-    // update: async (req, res, next) => {
-    //     try {
-    //         const {id} = req.params;
-    //         const {superpowers} = req.body;
-    //
-    //         let images = req.files.images;
-    //
-    //
-    //         const hero = await Superhero.findByPk(id);
-    //         if (images.length > 1) {
-    //             for (const image of images) {
-    //
-    //                 let fileName = uuid.v4() + '.jpg';
-    //                 await image.mv(path.resolve(__dirname, '..', 'static', fileName));
-    //                 hero.images = [fileName, ...hero.images];
-    //             }
-    //         } else {
-    //             let fileName = uuid.v4() + '.jpg';
-    //             await images.mv(path.resolve(__dirname, '..', 'static', fileName));
-    //             hero.images = [fileName, ...hero.images];
-    //         }
-    //         if (superpowers) {
-    //             hero.superpowers = [...JSON.parse(superpowers), ...hero.superpowers];
-    //         }
-    //         const updatedHeroInfo = await hero.update({
-    //             ...req.body,
-    //             superpowers: hero.superpowers,
-    //             images: hero.images
-    //         }, {where: {id}});
-    //         return res.json(updatedHeroInfo);
-    //     } catch (e) {
-    //         return next(ApiError.badRequestError(e.message))
-    //     }
-    // },
+    update: async (req, res, next) => {
+        try {
+            const {id} = req.params;
+
+            const hero = await Superhero.findByPk(id);
+
+            const updatedHeroInfo = await hero.update({
+                ...req.body,
+            }, {where: {id}});
+            return res.json(updatedHeroInfo);
+        } catch (e) {
+            return next(ApiError.badRequestError(e.message))
+        }
+    },
 
 }

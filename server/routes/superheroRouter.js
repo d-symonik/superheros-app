@@ -6,6 +6,6 @@ router.get('/',superheroController.getAll);
 router.get('/:id',superheroController.getById);
 router.post('/', superheroController.create);
 router.delete('/:id', superheroController.remove);
-// router.patch('/:id', superheroController.update);
+router.patch('/:id', superheroController.update);
 
 module.exports = {superheroRouter: router}
