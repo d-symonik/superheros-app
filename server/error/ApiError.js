@@ -1,4 +1,4 @@
-class ErrorHandler extends Error{
+class ApiError extends Error{
     constructor(status, message) {
         super();
         this.status = status;
@@ -6,11 +6,11 @@ class ErrorHandler extends Error{
     }
 
     static badRequestError(message){
-        return new ErrorHandler(404, message);
+        return new ApiError(404, message);
     }
     static internalError(message){
-        return new ErrorHandler(500, message);
+        return new ApiError(500, message);
     }
 }
 
-module.exports = ErrorHandler;
+module.exports = ApiError;

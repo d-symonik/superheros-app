@@ -13,7 +13,6 @@ const Superhero = sequelize.define('superhero', {
     },
     real_name: {
         type: DataTypes.STRING,
-        unique: true,
         allowNull:false
     },
     origin_description: {
@@ -22,8 +21,7 @@ const Superhero = sequelize.define('superhero', {
         allowNull:false
     },
     superpowers: {
-        type: DataTypes.STRING,
-        unique: true,
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull:false
     },
     catch_phrase: {
