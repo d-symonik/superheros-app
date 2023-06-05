@@ -34,10 +34,12 @@ module.exports = {
     update: async (req, res, next) => {
         try {
             let {id} = req.params;
+            let {name} = req.body;
+
             const superpower = await Superpower.findByPk(id);
 
             const updatedHeroInfo = await superpower.update({
-                ...req.body,
+                name,
             }, {where: {id}});
             return res.json(updatedHeroInfo);
         } catch (e) {

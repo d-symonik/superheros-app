@@ -14,14 +14,14 @@ module.exports = {
                 superpowers,
                 catch_phrase
             } = req.body;
-
-            if (!req.files) {
+            if (!req.files.image) {
                 return next(ApiError.badRequestError('Add an image'));
             }
             if (!superpowers) {
                 return next(ApiError.badRequestError('Add an superpower'));
             }
-            let {images} = req.files;
+            const {image} = req.files;
+
             const heroSchema = object({
                 nickname: string().min(2).max(50).required(),
                 real_name: string().min(2).max(50).required(),
@@ -40,27 +40,19 @@ module.exports = {
             });
             superpowers.forEach(superpower => {
                 Superpower.create({
-                    name: superpower,
+                    name: superpower.name,
                     superheroId: superhero.id
                 })
             })
-            if (!Array.isArray(images)) {
-                let fileName = uuid.v4() + '.jpg';
-                await images.mv(path.resolve(__dirname, '..', 'static', fileName));
-                await SuperheroImage.create({
-                    image: fileName,
-                    superheroId: superhero.id
-                })
-            } else {
-                for (const image of images) {
-                    let fileName = uuid.v4() + '.jpg';
-                    await image.mv(path.resolve(__dirname, '..', 'static', fileName));
-                    await SuperheroImage.create({
-                        image: fileName,
-                        superheroId: superhero.id
-                    })
-                }
-            }
+            let fileName = uuid.v4() + '.jpg';
+            const data = await image.mv(path.resolve(__dirname, '..', 'static', fileName));
+
+            await SuperheroImage.create({
+                image: fileName,
+                superheroId: superhero.id
+            })
+
+
             return res.json(superhero)
         } catch (e) {
             return next(ApiError.badRequestError(e.message))
@@ -68,19 +60,22 @@ module.exports = {
     },
     getAll: async (req, res, next) => {
         try {
-            let {limit, page} = req.query;
+            let {page, limit} = req.query;
 
             page = page || 1;
             limit = limit || 5;
 
             let offset = page * limit - limit;
 
-            let heroes = await Superhero.findAndCountAll({
+            let heroes = await Superhero.findAll({
                 limit,
                 offset,
-                include: [{model: Superpower, as: 'skills'}, {model: SuperheroImage, as: 'images'}]
+                include: [{model: Superpower, as: 'skills'}, {model: SuperheroImage, as: 'images'}],
+
             });
-            return res.json(heroes);
+            const count = await Superhero.count();
+
+            return res.json({count, heroes});
 
         } catch (e) {
             return next(ApiError.badRequestError(e.message))
@@ -103,10 +98,10 @@ module.exports = {
                     }],
 
             });
-
             if (!hero) {
                 return next(ApiError.badRequestError('Not found with this id'));
             }
+
             return res.json(hero);
         } catch (e) {
             return next(ApiError.badRequestError(e.message))
@@ -130,8 +125,10 @@ module.exports = {
     update: async (req, res, next) => {
         try {
             const {id} = req.params;
+            console.log(req.body)
+            await Superhero.update({...req.body}, {where: {id}});
 
-            const updatedHeroInfo = await Superhero.update({...req.body}, {where: {id}});
+            const updatedHeroInfo = await Superhero.findByPk(id);
             return res.json(updatedHeroInfo);
         } catch (e) {
             return next(ApiError.badRequestError(e.message))

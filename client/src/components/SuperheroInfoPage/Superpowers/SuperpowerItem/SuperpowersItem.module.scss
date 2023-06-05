@@ -1,0 +1,28 @@
+.item{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  list-style-type: none;
+  margin-top: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid white;
+  .actions{
+    button{
+      margin-left: 1rem;
+    }
+    .edit{
+      background-color: #3765bb;
+    }
+    .remove{
+      background-color: #c44141;
+    }
+    .save{
+      background-color: #149f29;
+    }
+  }
+  input{
+    padding: 1rem;
+
+  }
+}

@@ -1,0 +1,13 @@
+:root{
+    height: 100vh;
+    background-color: #484848;
+    font-family: "Segoe UI", SansSerif, ui-serif;
+    color: white;
+
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}

@@ -10,11 +10,11 @@ module.exports = {
 
             let fileName = uuid.v4() + '.jpg';
             await image.mv(path.resolve(__dirname, '..', 'static', fileName));
-            await SuperheroImage.create({
+           const createdImage =  await SuperheroImage.create({
                 image: fileName,
                 superheroId
             })
-            return res.json(`Successfully added ${fileName}`);
+            return res.json(createdImage);
         } catch (e) {
             return next(ApiError.badRequestError(e.message));
         }

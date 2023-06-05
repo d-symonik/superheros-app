@@ -1,0 +1,37 @@
+.superpowers {
+  flex: 40;
+
+  h2 {
+    text-align: center;
+  }
+
+  p {
+    margin: 1rem 0;
+    text-align: center;
+  }
+
+  .create {
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+
+    input {
+      height: 3rem;
+      width: 100%;
+      padding: 1rem;
+    }
+  }
+  .actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+
+    button {
+      width: 40%;
+      margin-top: 1rem;
+    }
+  }
+
+}
+
+

@@ -1,0 +1,33 @@
+.input {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  flex-direction: column;
+
+  label {
+
+  }
+
+  input {
+    width: 10rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-family: inherit;
+    font-size: inherit;
+    background-color: transparent;
+    color: inherit;
+
+    &:focus {
+      outline: none;
+    }
+
+  }
+
+  input[type="file"] {
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid #cccccc;
+    cursor: pointer;
+  }
+}
